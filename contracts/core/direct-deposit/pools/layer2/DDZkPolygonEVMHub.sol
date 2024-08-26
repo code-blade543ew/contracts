@@ -13,27 +13,22 @@
 
 pragma solidity 0.8.21;
 
-import {IStablecoin} from "../../../interfaces/IStablecoin.sol";
-import {IDDPool} from "../../../interfaces/core/IDDPool.sol";
-import {AccessControlEnumerable} from "@openzeppelin/contracts/access/extensions/AccessControlEnumerable.sol";
+import {DDBaseL2} from "./DDBaseL2.sol";
 
-abstract contract DDBase is IDDPool {
-  /// @notice The ZAI Stablecoin
-  IStablecoin public zai;
-
-  /// @notice The Direct Deposit module hub
-  address public hub;
-
-  address internal me;
-
-  function __DDBBase_init(address _zai, address _hub) internal {
-    zai = IStablecoin(_zai);
-    hub = _hub;
-    me = address(this);
+/**
+ * @title A Direct Deposit Module that sends the newly minted ZAI to a hub on a layer 2 via a Polygon zkEVM Bridge
+ * @author maha.xyz
+ */
+contract DDZkPolygonEVMHub is DDBaseL2 {
+  function proveBridgeWithdrawal() external {
+    // todo
   }
 
-  modifier onlyHub() {
-    if (msg.sender != hub) revert NotAuthorized();
-    _;
+  function finalizeBridgeWithdrawal() external {
+    // todo
+  }
+
+  function _depositToBridge(address to, uint256 amount) internal virtual override {
+    // todo
   }
 }

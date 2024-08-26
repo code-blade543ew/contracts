@@ -13,11 +13,15 @@
 
 pragma solidity 0.8.21;
 
-import {ZapCurvePoolBase} from "./ZapCurvePoolBase.sol";
+import {IERC4626, ZapCurvePoolBase} from "./ZapCurvePoolBase.sol";
 
-contract ZapCurvePoolUSDC is ZapCurvePoolBase {
-  constructor(address _staking, address _psm) ZapCurvePoolBase(_staking, _psm) {
-    // nothing
+contract ZapCurvePoolsUSDz is ZapCurvePoolBase {
+  IERC4626 public stakingUSDz;
+
+  constructor(address _staking, address _stakingUSDz, address _psm) ZapCurvePoolBase(_staking, _psm) {
+    stakingUSDz = IERC4626(_stakingUSDz);
+    zai.approve(address(stakingUSDz), type(uint256).max);
+    stakingUSDz.approve(address(pool), type(uint256).max);
   }
 
   /**
@@ -30,14 +34,18 @@ contract ZapCurvePoolUSDC is ZapCurvePoolBase {
     // fetch tokens
     collateral.transferFrom(msg.sender, me, collateralAmount);
 
-    // convert 50% collateral for zai
-    uint256 zaiAmount = collateralAmount * decimalOffset / 2;
+    // convert 100% collateral for zai
+    uint256 zaiAmount = collateralAmount * decimalOffset;
     psm.mint(address(this), zaiAmount);
+
+    // stake 50% collateral for sUSDz
+    stakingUSDz.deposit(zaiAmount / 2, me);
 
     // add liquidity
     uint256[] memory amounts = new uint256[](2);
-    amounts[0] = collateralAmount / 2;
-    amounts[1] = zaiAmount;
+    amounts[0] = zaiAmount / 2;
+    amounts[1] = zaiAmount / 2;
+
     pool.add_liquidity(amounts, minLpAmount, me);
 
     // we now have LP tokens; deposit into staking contract for the user
@@ -46,6 +54,7 @@ contract ZapCurvePoolUSDC is ZapCurvePoolBase {
     // sweep any dust
     _sweep(zai);
     _sweep(collateral);
+    _sweep(stakingUSDz);
 
     emit Zapped(msg.sender, collateralAmount / 2, zaiAmount, pool.balanceOf(msg.sender));
   }

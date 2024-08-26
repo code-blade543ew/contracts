@@ -13,27 +13,14 @@
 
 pragma solidity 0.8.21;
 
-import {IStablecoin} from "../../../interfaces/IStablecoin.sol";
-import {IDDPool} from "../../../interfaces/core/IDDPool.sol";
-import {AccessControlEnumerable} from "@openzeppelin/contracts/access/extensions/AccessControlEnumerable.sol";
+import {DDHubL2Base} from "./DDHubL2Base.sol";
 
-abstract contract DDBase is IDDPool {
-  /// @notice The ZAI Stablecoin
-  IStablecoin public zai;
-
-  /// @notice The Direct Deposit module hub
-  address public hub;
-
-  address internal me;
-
-  function __DDBBase_init(address _zai, address _hub) internal {
-    zai = IStablecoin(_zai);
-    hub = _hub;
-    me = address(this);
-  }
-
-  modifier onlyHub() {
-    if (msg.sender != hub) revert NotAuthorized();
-    _;
+/**
+ * @title A L2 Direct Deposit Hub for Optimism-based chains
+ * @author maha.xyz
+ */
+contract DDHubL2Optimism is DDHubL2Base {
+  function _withdrawToL1(uint256 amt) internal virtual override {
+    // todo
   }
 }

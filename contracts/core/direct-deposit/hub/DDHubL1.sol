@@ -13,27 +13,19 @@
 
 pragma solidity 0.8.21;
 
-import {IStablecoin} from "../../../interfaces/IStablecoin.sol";
-import {IDDPool} from "../../../interfaces/core/IDDPool.sol";
-import {AccessControlEnumerable} from "@openzeppelin/contracts/access/extensions/AccessControlEnumerable.sol";
+import {DDHubBase} from "./DDHubBase.sol";
 
-abstract contract DDBase is IDDPool {
-  /// @notice The ZAI Stablecoin
-  IStablecoin public zai;
-
-  /// @notice The Direct Deposit module hub
-  address public hub;
-
-  address internal me;
-
-  function __DDBBase_init(address _zai, address _hub) internal {
-    zai = IStablecoin(_zai);
-    hub = _hub;
-    me = address(this);
+/**
+ * @title A Direct Deposit Hub
+ * @author maha.xyz
+ * @notice This is the main contract responsible for managing pools.
+ */
+contract DDHubL1 is DDHubBase {
+  function _mint(uint256 amount, address dest) internal virtual override {
+    zai.mint(dest, amount);
   }
 
-  modifier onlyHub() {
-    if (msg.sender != hub) revert NotAuthorized();
-    _;
+  function _burn(uint256 amount, address dest) internal virtual override {
+    zai.burn(dest, amount);
   }
 }
